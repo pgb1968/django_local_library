@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   {% block title %}
+      <title>Local Library</title>
+   {% endblock %}
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   {% load static %}
+   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+   <link rel="stylesheet" href="{% static 'css/home_layout.css' %}">
+   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}" >
+   <script src="{% static 'js/dynamic.js' %}"></script>
+</head>
+
+<body>
+   <div class="container-fluid">
+      <div class="row">
+          <div class="col-sm-2">
+               {% block sidebar %}
+                  <ul class="sidebar-nav">
+                      <li><a href="{% url 'index' %}">Home</a></li>
+                      {% if user.is_authenticated %}
+                         <li><a href="{% url 'books' %}">All books</a></li>
+                         <li><a href="{% url 'authors' %}">All authors</a></li>
+                         <li>User: {{ user.get_username }}
+                             <form style="display: inline" method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                                {% csrf_token %}
+                                <button style = "border: none; background-color: transparent; font-family: 'Lato', sans-serif; font-size:1em; text-decoration: underline;" type="submit">(Logout)</button>
+                            </form>
+                         </li>
+                         {% if perms.catalog.can_mark_returned %}
+                            <li><a href="{% url 'all-loaned-books' %}"> Loaned books</a></li>
+                            <li><a href="{% url 'search-book-librarian' %}">Search</a></li>
+                         {% endif %}
+                      {% else %}
+                         No user:
+                          <ul>
+                            <li>
+                               <a href="{% url 'resetlogin' request.path %}"> Login</a>
+                            </li>
+                            <li>
+                             <a href="{% url 'signup' request.path %}">Sign up</a>
+                            </li>
+                         </ul>
+                      {% endif %}
+                  </ul>
+               {% endblock %}
+          </div><div class="col-sm-10">
+               {% block content %}
+               {% endblock %}
+               
+               {% block pagination %}
+                 {% if is_paginated %}
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                           <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">previous</a>
+                        {% endif %}
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        {% if page_obj.has_next %}
+                           <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">next</a>
+                        {% endif %}
+                     </div>
+                 {% endif %}
+              {% endblock %}
+          </div>
+       </div>
+    </div>
+</body>
+
+
+
+
+</html>
