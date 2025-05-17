@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+   <h1>Title: {{ book.title }}</h1>
+   <p><strong> Author:</strong> <a href="{{ book.author.get_absolute_url }}"> {{ book.author }}</a></p>
+   <p><strong> Summary: </strong> {{ book.summary }}</p>
+   <p><strong> ISBN: </strong> {{ book.isbn }}</p>
+   <p><strong> Language: </strong> {{ book.language }}</p>
+   <p><strong> Genre: </strong> {{ book.genre }}</p>
+   
+   <div style="margin-left:20px;margin-top:20px">
+        {% if book.bookinstance_set.all %}
+          <h4>Copies</h4>
+          {% for copy in book.bookinstance_set.all %}
+             <hr>
+             <p id="para-{{copy.id}}" class="{% if copy.status == 'a' %}text-success{% elif copy.is_overdue %}text-danger{% else %}text-warning{% endif %}">
+                {{ copy.get_status_display }}
+                {% if perms.catalog.can_mark_returned %}
+                   {% if copy.status == 'a' %}
+                       <span id="span-{{copy.id}}">
+                         <button onclick="setOnMaintenance('{{ copy.id }}')">
+                               Put on maintenance
+                         </button>
+                       </span>
+                   {% endif %}
+                {% endif %}                
+             </p>
+             {% if copy.status == 'o' %}
+                <p><strong>Due back by </strong> {{ copy.due_back }}</p>
+             {% endif %}
+             <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
+             <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
+          {% endfor %}
+        {% else %}
+           <h4 class="text-danger">This book has no copies</h4>
+        {% endif %}
+</div>
+   
+   
+{% endblock %}
+
+
